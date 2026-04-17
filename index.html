@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>AU Tax Calculator 2025-26</title>
+<style>
+  :root {
+    --navy: #1B2A4A;
+    --orange: #F59E0B;
+    --soft: #E8F0FE;
+    --light: #F5F7FB;
+    --ink: #0F172A;
+    --muted: #64748B;
+    --line: #E2E8F0;
+    --green: #047857;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--light);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 20px 20px 16px;
+    text-align: center;
+  }
+  header h1 { font-size: 20px; font-weight: 700; }
+  header .sub { color: var(--orange); font-size: 14px; font-weight: 600; margin-top: 2px; }
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid var(--line);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card h2 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--navy);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--soft);
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--navy);
+    background: white;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+  }
+  .toggle-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .toggle-row label { margin-bottom: 0; flex: 1; }
+  .toggle-btn {
+    flex: 1;
+    padding: 12px 8px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    background: white;
+    text-align: center;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .toggle-btn.active {
+    border-color: var(--navy);
+    background: var(--navy);
+    color: white;
+  }
+  .result-hero {
+    background: var(--navy);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .result-hero .lbl {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: rgba(255,255,255,0.6);
+  }
+  .result-hero .big {
+    font-size: 36px;
+    font-weight: 800;
+    color: white;
+    margin: 6px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-hero .sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #F1F5F9;
+    font-size: 14px;
+  }
+  .row:last-child { border-bottom: none; }
+  .row .lbl { color: #475569; }
+  .row .val { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .row.green .val { color: var(--green); }
+  .row.accent .val { color: var(--orange); }
+  .row.big { padding: 14px 0; }
+  .row.big .lbl { font-weight: 600; color: var(--navy); font-size: 15px; }
+  .row.big .val { font-size: 18px; color: var(--navy); }
+  .bar {
+    margin-top: 16px;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--green), var(--orange));
+    transition: width 0.3s ease;
+  }
+  .bar-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .note {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: #FEF3C7;
+    border-radius: 8px;
+    font-size: 11px;
+    color: #78350F;
+    line-height: 1.5;
+  }
+  .bracket-table { margin-top: 8px; }
+  .bracket-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #F1F5F9;
+    font-size: 13px;
+  }
+  .bracket-row .range { color: #475569; flex: 1; }
+  .bracket-row .rate { color: var(--navy); font-weight: 600; width: 60px; text-align: right; }
+  .bracket-row .tax { color: var(--muted); font-weight: 600; width: 80px; text-align: right; }
+  .bracket-row.active { background: #FEF3C7; margin: 0 -8px; padding: 6px 8px; border-radius: 6px; }
+  footer {
+    text-align: center;
+    padding: 16px;
+    color: var(--muted);
+    font-size: 10px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Australian Tax Calculator</h1>
+  <div class="sub">2025-26 Financial Year</div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>Your Details</h2>
+    <div class="field">
+      <label>Annual taxable income</label>
+      <input type="number" id="income" value="85000" inputmode="numeric" pattern="[0-9]*">
+    </div>
+    <div class="field">
+      <label>Private health insurance?</label>
+      <div class="toggle-row">
+        <button class="toggle-btn" data-field="phi" data-val="1" onclick="setToggle(this)">Yes</button>
+        <button class="toggle-btn active" data-field="phi" data-val="0" onclick="setToggle(this)">No</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>HECS / HELP debt?</label>
+      <div class="toggle-row">
+        <button class="toggle-btn" data-field="help" data-val="1" onclick="setToggle(this)">Yes</button>
+        <button class="toggle-btn active" data-field="help" data-val="0" onclick="setToggle(this)">No</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Resident for tax purposes?</label>
+      <div class="toggle-row">
+        <button class="toggle-btn active" data-field="resident" data-val="1" onclick="setToggle(this)">Yes</button>
+        <button class="toggle-btn" data-field="resident" data-val="0" onclick="setToggle(this)">No</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-hero">
+    <div class="lbl">Take-Home Pay</div>
+    <div class="big" id="takeHome"></div>
+    <div class="sub" id="takeHomePeriod"></div>
+  </div>
+
+  <div class="card">
+    <h2>Breakdown</h2>
+    <div class="row big"><span class="lbl">Gross income</span><span class="val" id="r_gross"></span></div>
+    <div class="row"><span class="lbl">Income tax</span><span class="val" id="r_tax"></span></div>
+    <div class="row" id="r_lito_row"><span class="lbl">LITO offset applied</span><span class="val green" id="r_lito"></span></div>
+    <div class="row"><span class="lbl">Medicare levy (2%)</span><span class="val" id="r_medicare"></span></div>
+    <div class="row" id="r_mls_row" style="display:none"><span class="lbl">Medicare surcharge</span><span class="val" id="r_mls"></span></div>
+    <div class="row" id="r_help_row" style="display:none"><span class="lbl">HELP repayment</span><span class="val" id="r_help"></span></div>
+    <div class="row big green"><span class="lbl">Take-home pay</span><span class="val" id="r_net"></span></div>
+    <div class="row accent"><span class="lbl">Effective tax rate</span><span class="val" id="r_effective"></span></div>
+
+    <div class="bar"><div class="bar-fill" id="bar"></div></div>
+    <div class="bar-labels"><span>Tax</span><span>Take-home</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Pay Periods</h2>
+    <div class="row"><span class="lbl">Weekly</span><span class="val" id="p_weekly"></span></div>
+    <div class="row"><span class="lbl">Fortnightly</span><span class="val" id="p_fortnightly"></span></div>
+    <div class="row"><span class="lbl">Monthly</span><span class="val" id="p_monthly"></span></div>
+    <div class="row accent"><span class="lbl">Daily (5-day week)</span><span class="val" id="p_daily"></span></div>
+  </div>
+
+  <div class="card">
+    <h2>Your Tax Bracket</h2>
+    <div id="brackets"></div>
+  </div>
+
+  <div class="card">
+    <h2>Super on Top</h2>
+    <div class="row"><span class="lbl">SG rate (12%)</span><span class="val" id="s_amount"></span></div>
+    <div class="row big"><span class="lbl">Total package (salary + super)</span><span class="val" id="s_total"></span></div>
+    <div class="note">Super is paid by your employer on top of your salary. Max SG contribution base: $62,500/quarter.</div>
+  </div>
+
+  <div class="note">
+    Estimate only — does not include salary sacrifice, deductions, private rulings, or offsets other than LITO.
+    HECS uses the new 2025-26 marginal repayment system. Verify with ATO (ato.gov.au).
+  </div>
+</div>
+
+<footer>Source: ATO 2025-26 tax tables, Medicare levy rates, HELP thresholds. Not financial advice.</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = v => "$" + Math.round(v).toLocaleString("en-AU");
+
+let state = { phi: 0, help: 0, resident: 1 };
+
+function setToggle(btn) {
+  const field = btn.dataset.field;
+  const val = +btn.dataset.val;
+  state[field] = val;
+  btn.parentElement.querySelectorAll(".toggle-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  calc();
+}
+
+function calc() {
+  const income = +$("income").value || 0;
+  const isRes = state.resident;
+
+  // Income tax
+  let tax = 0;
+  if (isRes) {
+    if (income <= 18200) tax = 0;
+    else if (income <= 45000) tax = (income - 18200) * 0.16;
+    else if (income <= 135000) tax = 4288 + (income - 45000) * 0.30;
+    else if (income <= 190000) tax = 31288 + (income - 135000) * 0.37;
+    else tax = 51638 + (income - 190000) * 0.45;
+  } else {
+    if (income <= 135000) tax = income * 0.30;
+    else if (income <= 190000) tax = 40500 + (income - 135000) * 0.37;
+    else tax = 60850 + (income - 190000) * 0.45;
+  }
+
+  // LITO (residents only)
+  let lito = 0;
+  if (isRes) {
+    if (income <= 37500) lito = 700;
+    else if (income <= 45000) lito = 700 - (income - 37500) * 0.05;
+    else if (income <= 66667) lito = 325 - (income - 45000) * 0.015;
+    lito = Math.max(0, lito);
+  }
+  const taxAfterLito = Math.max(0, tax - lito);
+
+  // Medicare (residents only)
+  let medicare = 0;
+  if (isRes) {
+    if (income > 34028) medicare = income * 0.02;
+    else if (income > 27222) medicare = (income - 27222) * 0.10;
+  }
+
+  // MLS (residents, no PHI)
+  let mls = 0;
+  if (isRes && !state.phi) {
+    if (income > 144000) mls = income * 0.015;
+    else if (income > 118000) mls = income * 0.0125;
+    else if (income > 101000) mls = income * 0.01;
+  }
+
+  // HELP (marginal system 2025-26)
+  let help = 0;
+  if (state.help && income >= 67000) {
+    if (income >= 179286) {
+      help = income * 0.10;
+    } else if (income >= 125000) {
+      help = (125000 - 67000) * 0.15 + (income - 125000) * 0.17;
+    } else {
+      help = (income - 67000) * 0.15;
+    }
+  }
+
+  const totalTax = taxAfterLito + medicare + mls + help;
+  const net = income - totalTax;
+  const effective = income > 0 ? (totalTax / income * 100) : 0;
+
+  // Display
+  $("takeHome").textContent = fmt(net);
+  $("takeHomePeriod").textContent = `${fmt(net/26)}/fortnight  •  ${fmt(net/12)}/month`;
+
+  $("r_gross").textContent = fmt(income);
+  $("r_tax").textContent = "-" + fmt(taxAfterLito);
+  $("r_lito").textContent = lito > 0 ? "+" + fmt(lito) : "$0";
+  $("r_lito_row").style.display = isRes ? "flex" : "none";
+  $("r_medicare").textContent = medicare > 0 ? "-" + fmt(medicare) : "$0";
+  $("r_mls_row").style.display = mls > 0 ? "flex" : "none";
+  $("r_mls").textContent = "-" + fmt(mls);
+  $("r_help_row").style.display = help > 0 ? "flex" : "none";
+  $("r_help").textContent = "-" + fmt(help);
+  $("r_net").textContent = fmt(net);
+  $("r_effective").textContent = effective.toFixed(1) + "%";
+
+  $("bar").style.width = (income > 0 ? (net / income * 100) : 100) + "%";
+
+  $("p_weekly").textContent = fmt(net / 52);
+  $("p_fortnightly").textContent = fmt(net / 26);
+  $("p_monthly").textContent = fmt(net / 12);
+  $("p_daily").textContent = fmt(net / 260);
+
+  // Super
+  const sg = Math.min(income, 250000) * 0.12;
+  $("s_amount").textContent = fmt(sg);
+  $("s_total").textContent = fmt(income + sg);
+
+  // Brackets
+  const brackets = isRes ? [
+    { from: 0, to: 18200, rate: "0%", pct: 0 },
+    { from: 18201, to: 45000, rate: "16%", pct: 0.16 },
+    { from: 45001, to: 135000, rate: "30%", pct: 0.30 },
+    { from: 135001, to: 190000, rate: "37%", pct: 0.37 },
+    { from: 190001, to: Infinity, rate: "45%", pct: 0.45 },
+  ] : [
+    { from: 0, to: 135000, rate: "30%", pct: 0.30 },
+    { from: 135001, to: 190000, rate: "37%", pct: 0.37 },
+    { from: 190001, to: Infinity, rate: "45%", pct: 0.45 },
+  ];
+
+  let bhtml = "";
+  for (const b of brackets) {
+    const active = income >= b.from && (income <= b.to || b.to === Infinity);
+    const rangeStr = b.to === Infinity ? `$${b.from.toLocaleString()}+` : `$${b.from.toLocaleString()} – $${b.to.toLocaleString()}`;
+    let taxInBracket = 0;
+    if (income >= b.from) {
+      const taxable = Math.min(income, b.to === Infinity ? income : b.to) - b.from + 1;
+      taxInBracket = taxable * b.pct;
+    }
+    bhtml += `<div class="bracket-row ${active ? 'active' : ''}">
+      <span class="range">${rangeStr}</span>
+      <span class="rate">${b.rate}</span>
+      <span class="tax">${income >= b.from ? fmt(taxInBracket) : '—'}</span>
+    </div>`;
+  }
+  $("brackets").innerHTML = bhtml;
+}
+
+$("income").addEventListener("input", calc);
+calc();
+</script>
+</body>
+</html>
