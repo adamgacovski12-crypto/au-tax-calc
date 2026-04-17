@@ -248,9 +248,10 @@
   <div class="card">
     <h2>Breakdown</h2>
     <div class="row big"><span class="lbl">Gross income</span><span class="val" id="r_gross"></span></div>
-    <div class="row"><span class="lbl">Income tax</span><span class="val" id="r_tax"></span></div>
+    <div class="row"><span class="lbl">Income tax (before offsets)</span><span class="val" id="r_taxGross"></span></div>
     <div class="row" id="r_lito_row"><span class="lbl">LITO offset applied</span><span class="val green" id="r_lito"></span></div>
-    <div class="row"><span class="lbl">Medicare levy (2%)</span><span class="val" id="r_medicare"></span></div>
+    <div class="row"><span class="lbl">Income tax (after LITO)</span><span class="val" id="r_tax"></span></div>
+    <div class="row"><span class="lbl">Medicare levy</span><span class="val" id="r_medicare"></span></div>
     <div class="row" id="r_mls_row" style="display:none"><span class="lbl">Medicare surcharge</span><span class="val" id="r_mls"></span></div>
     <div class="row" id="r_help_row" style="display:none"><span class="lbl">HELP repayment</span><span class="val" id="r_help"></span></div>
     <div class="row big green"><span class="lbl">Take-home pay</span><span class="val" id="r_net"></span></div>
@@ -258,6 +259,7 @@
 
     <div class="bar"><div class="bar-fill" id="bar"></div></div>
     <div class="bar-labels"><span>Tax</span><span>Take-home</span></div>
+    <div id="tax_note" class="note" style="display:none;margin-top:12px"></div>
   </div>
 
   <div class="card">
@@ -366,10 +368,12 @@ function calc() {
   $("takeHome").textContent = fmt(net);
   $("takeHomePeriod").textContent = `${fmt(net/26)}/fortnight  •  ${fmt(net/12)}/month`;
 
+  const litoApplied = Math.min(lito, tax);
   $("r_gross").textContent = fmt(income);
-  $("r_tax").textContent = "-" + fmt(taxAfterLito);
-  $("r_lito").textContent = lito > 0 ? "+" + fmt(lito) : "$0";
-  $("r_lito_row").style.display = isRes ? "flex" : "none";
+  $("r_taxGross").textContent = tax > 0 ? "-" + fmt(tax) : "$0";
+  $("r_lito").textContent = litoApplied > 0 ? "+" + fmt(litoApplied) : "$0";
+  $("r_lito_row").style.display = (isRes && tax > 0) ? "flex" : "none";
+  $("r_tax").textContent = taxAfterLito > 0 ? "-" + fmt(taxAfterLito) : "$0";
   $("r_medicare").textContent = medicare > 0 ? "-" + fmt(medicare) : "$0";
   $("r_mls_row").style.display = mls > 0 ? "flex" : "none";
   $("r_mls").textContent = "-" + fmt(mls);
@@ -379,6 +383,21 @@ function calc() {
   $("r_effective").textContent = effective.toFixed(1) + "%";
 
   $("bar").style.width = (income > 0 ? (net / income * 100) : 100) + "%";
+
+  // Explanatory note
+  const noteEl = $("tax_note");
+  if (isRes && income > 18200 && income <= 22575 && totalTax === 0) {
+    noteEl.style.display = "block";
+    noteEl.innerHTML = "Income tax of " + fmt(tax) + " is fully offset by LITO (" + fmt(litoApplied) + "). The effective tax-free threshold with LITO is $22,575. Below this, you pay no income tax or Medicare levy.";
+  } else if (isRes && income <= 18200 && income > 0) {
+    noteEl.style.display = "block";
+    noteEl.innerHTML = "Income is below the $18,200 tax-free threshold — no income tax applies.";
+  } else if (isRes && income > 27222 && income <= 34028) {
+    noteEl.style.display = "block";
+    noteEl.innerHTML = "Medicare levy is reduced because income is between the low-income threshold ($27,222) and the full-levy threshold ($34,028). Levy is 10% of the excess above $27,222.";
+  } else {
+    noteEl.style.display = "none";
+  }
 
   $("p_weekly").textContent = fmt(net / 52);
   $("p_fortnightly").textContent = fmt(net / 26);
